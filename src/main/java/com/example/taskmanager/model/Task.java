@@ -14,6 +14,7 @@ public class Task {
     private int id;
     private String title;
     private boolean completed;
+    private String category;
 
     public Task(int id, String title) {
         this.id = id;
@@ -46,6 +47,14 @@ public class Task {
 
     public void setTitle(String title) {
         this.title = title;
+    }
+
+    public String getCategory() {
+        return category;
+    }
+
+    public void setCategory(String category) {
+        this.category = category;
     }
 
 }
