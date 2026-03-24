@@ -30,23 +30,24 @@
 
         .input-group {
             display: flex;
+            flex-direction: column;
             margin-bottom: 20px;
         }
 
-        input {
-            flex: 1;
+        input, select {
             padding: 10px;
-            border-radius: 8px 0 0 8px;
+            border-radius: 8px;
             border: none;
             outline: none;
+            margin-bottom: 10px;
         }
 
         #addBtn {
-            padding: 10px 15px;
+            padding: 10px;
             border: none;
             background: #4CAF50;
             color: white;
-            border-radius: 0 8px 8px 0;
+            border-radius: 8px;
             cursor: pointer;
             transition: 0.3s;
         }
@@ -66,18 +67,30 @@
             padding: 10px;
             border-radius: 10px;
             display: flex;
-            justify-content: space-between;
-            align-items: center;
-            transition: 0.3s;
+            flex-direction: column;
         }
 
-        li:hover {
-            transform: scale(1.02);
+        .task-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
         }
 
         .task-text {
             flex: 1;
         }
+
+        .category {
+            font-size: 12px;
+            margin-top: 5px;
+            padding: 3px 6px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .Work { background: #ffcccb; }
+        .Personal { background: #c8e6c9; }
+        .Study { background: #bbdefb; }
 
         .completed {
             text-decoration: line-through;
@@ -101,14 +114,6 @@
             background: #f44336;
             color: white;
         }
-
-        .done:hover {
-            background: #1976D2;
-        }
-
-        .delete:hover {
-            background: #d32f2f;
-        }
     </style>
 </head>
 
@@ -119,6 +124,14 @@
 
     <div class="input-group">
         <input type="text" id="taskInput" placeholder="Enter task">
+
+        <!-- NEW CATEGORY DROPDOWN -->
+        <select id="categoryInput">
+            <option value="Work">Work</option>
+            <option value="Personal">Personal</option>
+            <option value="Study">Study</option>
+        </select>
+
         <button id="addBtn" onclick="addTask()">Add</button>
     </div>
 
@@ -135,6 +148,9 @@ function loadTasks() {
 
             data.forEach(task => {
                 let li = document.createElement('li');
+
+                let row = document.createElement('div');
+                row.className = "task-row";
 
                 let text = document.createElement('span');
                 text.className = "task-text";
@@ -154,9 +170,17 @@ function loadTasks() {
                 delBtn.className = "btn delete";
                 delBtn.onclick = () => deleteTask(task.id);
 
-                li.appendChild(text);
-                li.appendChild(doneBtn);
-                li.appendChild(delBtn);
+                row.appendChild(text);
+                row.appendChild(doneBtn);
+                row.appendChild(delBtn);
+
+                // CATEGORY LABEL
+                let category = document.createElement('span');
+                category.innerText = task.category;
+                category.className = "category " + task.category;
+
+                li.appendChild(row);
+                li.appendChild(category);
 
                 list.appendChild(li);
             });
@@ -165,7 +189,9 @@ function loadTasks() {
 
 function addTask() {
     let title = document.getElementById('taskInput').value;
-    fetch(`/tasks?title=${title}`, { method: 'POST' })
+    let category = document.getElementById('categoryInput').value;
+
+    fetch(`/tasks?title=${title}&category=${category}`, { method: 'POST' })
         .then(() => {
             document.getElementById('taskInput').value = "";
             loadTasks();

@@ -19,8 +19,8 @@ public class TaskController {
     }
 
     @PostMapping
-    public Task addTask(@RequestParam String title) {
-        return service.addTask(title);
+    public Task addTask(@RequestParam String title, @RequestParam String category) {
+        return service.addTask(title, category);
     }
 
     @GetMapping

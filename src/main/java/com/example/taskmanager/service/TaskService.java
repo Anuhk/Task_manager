@@ -16,9 +16,10 @@ public class TaskService {
         this.repo = repo;
     }
 
-    public Task addTask(String title) {
+    public Task addTask(String title,String category) {
         Task task = new Task();
         task.setTitle(title);
+        task.setCategory(category);
         task.setCompleted(false);
         return repo.save(task); // 🔥 saves to DB
     }
