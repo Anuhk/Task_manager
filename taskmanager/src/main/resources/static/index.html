@@ -1,0 +1,215 @@
+<!DOCTYPE html>
+<html>
+<head>
+    <title>Task Manager</title>
+
+    <style>
+        body {
+            font-family: 'Segoe UI', sans-serif;
+            background: linear-gradient(135deg, #74ebd5, #9face6);
+            height: 100vh;
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            margin: 0;
+        }
+
+        .container {
+            background: rgba(255, 255, 255, 0.2);
+            backdrop-filter: blur(12px);
+            padding: 30px;
+            border-radius: 15px;
+            width: 350px;
+            box-shadow: 0 8px 32px rgba(0,0,0,0.2);
+        }
+
+        h2 {
+            text-align: center;
+            color: #333;
+        }
+
+        .input-group {
+            display: flex;
+            flex-direction: column;
+            margin-bottom: 20px;
+        }
+
+        input, select {
+            padding: 10px;
+            border-radius: 8px;
+            border: none;
+            outline: none;
+            margin-bottom: 10px;
+        }
+
+        #addBtn {
+            padding: 10px;
+            border: none;
+            background: #4CAF50;
+            color: white;
+            border-radius: 8px;
+            cursor: pointer;
+            transition: 0.3s;
+        }
+
+        #addBtn:hover {
+            background: #45a049;
+        }
+
+        ul {
+            list-style: none;
+            padding: 0;
+        }
+
+        li {
+            background: white;
+            margin-bottom: 10px;
+            padding: 10px;
+            border-radius: 10px;
+            display: flex;
+            flex-direction: column;
+        }
+
+        .task-row {
+            display: flex;
+            justify-content: space-between;
+            align-items: center;
+        }
+
+        .task-text {
+            flex: 1;
+        }
+
+        .category {
+            font-size: 12px;
+            margin-top: 5px;
+            padding: 3px 6px;
+            border-radius: 5px;
+            display: inline-block;
+        }
+
+        .Work { background: #ffcccb; }
+        .Personal { background: #c8e6c9; }
+        .Study { background: #bbdefb; }
+
+        .completed {
+            text-decoration: line-through;
+            color: gray;
+        }
+
+        .btn {
+            margin-left: 5px;
+            border: none;
+            padding: 5px 8px;
+            border-radius: 5px;
+            cursor: pointer;
+        }
+
+        .done {
+            background: #2196F3;
+            color: white;
+        }
+
+        .delete {
+            background: #f44336;
+            color: white;
+        }
+    </style>
+</head>
+
+<body>
+
+<div class="container">
+    <h2>✨ Task Manager</h2>
+
+    <div class="input-group">
+        <input type="text" id="taskInput" placeholder="Enter task">
+
+        <!-- NEW CATEGORY DROPDOWN -->
+        <select id="categoryInput">
+            <option value="Work">Work</option>
+            <option value="Personal">Personal</option>
+            <option value="Study">Study</option>
+        </select>
+
+        <button id="addBtn" onclick="addTask()">Add</button>
+    </div>
+
+    <ul id="taskList"></ul>
+</div>
+
+<script>
+function loadTasks() {
+    fetch('/tasks')
+        .then(res => res.json())
+        .then(data => {
+            const list = document.getElementById('taskList');
+            list.innerHTML = '';
+
+            data.forEach(task => {
+                let li = document.createElement('li');
+
+                let row = document.createElement('div');
+                row.className = "task-row";
+
+                let text = document.createElement('span');
+                text.className = "task-text";
+                text.innerText = task.title;
+
+                if (task.completed) {
+                    text.classList.add("completed");
+                }
+
+                let doneBtn = document.createElement('button');
+                doneBtn.innerText = "✔";
+                doneBtn.className = "btn done";
+                doneBtn.onclick = () => completeTask(task.id);
+
+                let delBtn = document.createElement('button');
+                delBtn.innerText = "✖";
+                delBtn.className = "btn delete";
+                delBtn.onclick = () => deleteTask(task.id);
+
+                row.appendChild(text);
+                row.appendChild(doneBtn);
+                row.appendChild(delBtn);
+
+                // CATEGORY LABEL
+                let category = document.createElement('span');
+                category.innerText = task.category;
+                category.className = "category " + task.category;
+
+                li.appendChild(row);
+                li.appendChild(category);
+
+                list.appendChild(li);
+            });
+        });
+}
+
+function addTask() {
+    let title = document.getElementById('taskInput').value;
+    let category = document.getElementById('categoryInput').value;
+
+    fetch(`/tasks?title=${title}&category=${category}`, { method: 'POST' })
+        .then(() => {
+            document.getElementById('taskInput').value = "";
+            loadTasks();
+        });
+}
+
+function completeTask(id) {
+    fetch(`/tasks/${id}`, { method: 'PUT' })
+        .then(() => loadTasks());
+}
+
+function deleteTask(id) {
+    fetch(`/tasks/${id}`, { method: 'DELETE' })
+        .then(() => loadTasks());
+}
+
+loadTasks();
+</script>
+
+</body>
+</html>
